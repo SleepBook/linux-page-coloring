@@ -13,7 +13,7 @@
 #define NR_COLORS	32
 
 // the number of colored page to reserve
-#define RESERVE_COLOR_PAGES		262144 * NR_COLORS	// 262144 * 4KB = 1GB
+#define RESERVE_COLOR_PAGES		65536 * NR_COLORS	
 
 /* FIXME: it will be dependent on processor architectures */
 //#define	CACHE_SET_BITS	13

@@ -2923,6 +2923,7 @@ EXPORT_SYMBOL(get_zeroed_page);
 
 void __free_pages(struct page *page, unsigned int order)
 {
+	//wq: why not give back to colorred list?
 	/*
 	if (page->color_flags == 1) {
 		free_color_page(page);
@@ -6620,7 +6621,7 @@ unsigned int get_page_color(struct page* page)
 	pfn = page_to_pfn(page);
 
 	//wq: based on xeon 2607 v3
-	pf_color = (pfg >> COLOR_BITS_OFFSET) & COLOR_BITS_MASK;
+	pf_color = (pfn >> COLOR_BITS_OFFSET) & COLOR_BITS_MASK;
 	printk(KERN_INFO, "Page frame %x of color %d\n", pfn, pf_color);
 
 	return pf_color; 
@@ -6754,6 +6755,6 @@ void __init colormem_init(int num_pages)
 	printk(KERN_INFO "colormem_init success! %u colored page reserved upfront\n",
 			num_pages);
 	for (i = 0; i < NR_COLORS; i++) {
-		printf(KERN_INFO "Color %u has %u pages\n", i, color_area[i].nr_total);
+		printk(KERN_INFO "Color %u has %lu pages\n", i, color_area[i].nr_total);
 	}
 }
