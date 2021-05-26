@@ -6614,14 +6614,22 @@ EXPORT_SYMBOL(get_colorinfo);
 unsigned int get_page_color(struct page* page)
 {
 	unsigned long pfn;
+	unsigned int pf_color;
 
-	/* FIXME: it will be dependent on processor architectures */
+	/* DONE FIXME: it will be dependent on processor architectures */
 	pfn = page_to_pfn(page);
-	return (pfn % NR_COLORS);
+
+	//wq: based on xeon 2607 v3
+	pf_color = (pfg >> COLOR_BITS_OFFSET) & COLOR_BITS_MASK;
+	printk(KERN_INFO, "Page frame %x of color %d\n", pfn, pf_color);
+
+	return pf_color; 
+	//return (pfn % NR_COLORS);
 }
 
 /*
  *	Currently, target_color is not used
+ * 	wq: this precedure to discover new color pages
  */ 
 int reserve_color_pages(int num_pages, int target_color)
 {
@@ -6706,6 +6714,9 @@ void free_color_page(struct page* page)
 	spin_unlock(&color_lock[color]);
 }
 
+/**
+ * Reserve bunch of colored page up front
+ */
 void __init colormem_init(int num_pages)
 {
 	int i;
@@ -6735,9 +6746,14 @@ void __init colormem_init(int num_pages)
 		}
 	}
 
+	//wq: no guarantee the page given by kernel is evenly distributed into colors
 	if ( reserve_color_pages(num_pages, 0) == -1 ) {
 		printk(KERN_ERR "failed to reserve color[%d]\n", i);
 	}
 
-	printk(KERN_INFO "colormem_init success!\n");
+	printk(KERN_INFO "colormem_init success! %u colored page reserved upfront\n",
+			num_pages);
+	for (i = 0; i < NR_COLORS; i++) {
+		printf(KERN_INFO "Color %u has %u pages\n", i, color_area[i].nr_total);
+	}
 }

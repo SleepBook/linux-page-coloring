@@ -5,7 +5,14 @@
 #include <linux/threads.h>
 #include <linux/bitmap.h>
 
-#define NR_COLORS	4	/* FIXME: num of CPUs */
+// Note: the number of total colors can be user defined, but need to 
+// meet two restrictions:
+//		1. if it's LLC coloring, cannot exceed the cache index bits minus 	
+// 			the 4kB page bit (12)
+//		2. need to match the COLOR_MASK_BITS below
+#define NR_COLORS	32
+
+// the number of colored page to reserve
 #define RESERVE_COLOR_PAGES		262144 * NR_COLORS	// 262144 * 4KB = 1GB
 
 /* FIXME: it will be dependent on processor architectures */
@@ -13,6 +20,11 @@
 //#define	LINE_SIZE_BITS	6		// cache_line_size()
 //#define	PAGE_SIZE_BITS	12
 //#define	COLOR_MASK_BITS	CACHE_SET_BITS + LINE_SIZE_BITS - PAGE_SIZE_BITS
+//wq, defined according to xeon 2607 v3
+#define	COLOR_MASK_BITS	5 //12-16 bit
+#define COLOR_BITS_OFFSET 12
+#define COLOR_BITS_MASK 0x1f
+
 
 typedef struct colormask { DECLARE_BITMAP(bits, NR_COLORS); } colormask_t;
 
